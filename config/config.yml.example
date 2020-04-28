@@ -1,0 +1,90 @@
+# Values in days to breakdown
+# the largest value will be the
+# determiningn value for cumulative metrics
+history: [1, 7]
+
+
+# These will inform the breakdown table
+# for history but only if they are available
+# for a particular backend.
+# This value can be overridden at the backend level.
+summary_fields: ['status']
+
+email:
+  from: 'myscript@my.domain'
+  to: 'recipients@my.domain'
+  server: '127.0.0.1'
+
+# Jinja2
+templates: '/etc/peek/templates'
+sections:
+   summary: True
+   kanban: True
+   anti: True
+   users: True
+   tasks: True
+   tasks_breakdown: False
+
+users:
+  # Days until an assigned task without
+  # an update is considered moldy.
+  moldy: 30
+  # Number of tasks to show explicitly in
+  # status messages.
+  show_moldy: 3
+
+  attributes:
+    name:
+      phab: 'userName'
+      asana: 'name'
+    show:
+      image:
+        backend: phab
+        key: image
+      uri:
+        backend: phab
+        key: uri
+
+  map:
+    'Bob User':
+      asana: 'Bob P. User'
+      phab: 'bobuser'
+    'Jan User':
+      asana: 'Jan User'
+      phab: 'doglover'
+
+backends:
+  asana:
+    enabled: True
+    token: 'XXXXXX'
+    workspace: 'My Workspace'
+    # List of substrings to pattern match in order to 'ignore' a task
+    ignore: ['Ignore tasks with this string in subject', 'and this one']
+    projects:
+      'Project Phoenix':
+        columns:
+          backlog: backlog
+          progress: progress
+  phab:
+    enabled: True
+    host: 'https://phabricator.mydomain'
+    token: 'XXXX'
+    timeout: 10
+    query_delay: 1
+    agents: False
+    summary_fields:
+      - status
+      - priority
+    projects:
+      ProjectsRUs:
+        columns:
+          backlog: PHID-PCOL-XXXX
+          waiting: PHID-PCOL-XXXX
+          watching: PHID-PCOL-XXXX
+          progress: PHID-PCOL-XXXX
+      DoAllTheThings:
+        columns:
+          backlog: PHID-PCOL-XXXX
+          waiting: PHID-PCOL-XXXX
+          watching: PHID-PCOL-XXXX
+          progress: PHID-PCOL-XXXX

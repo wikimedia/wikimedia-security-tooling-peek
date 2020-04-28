@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% from "macros.html" import phtask %}
+{% from "macros.html" import projlink %}
+{% from "macros.html" import summary_table %}
+{% from "macros.html" import phtask_full %}
+{% block content %}
+
+{% if data[2]['sections']['summary'] %}
+  <div align='center'>
+    <font size="+3"><b>Summary</b></font>
+    <p>
+    Reporting on {{ data[0]['enabled_projects'] | length }} projects across {{ data[0]['enabled_backends'] | length }} backend(s).<br>
+    <p>
+    {% for be in data[0]['enabled_backends'] | sort %}
+      <b>{{ be.capitalize() }}</b> <br>
+      {% for project, pinfo in data[1][be]['projects'].items() | sort %}
+        <a href="{{ pinfo['show']['uri'] }}"> {{ project }}</a><br>
+      {% endfor %}
+    {% endfor %}
+  </div>
+{% endif %}
+<p>
+
+{% if data[2]['sections']['kanban'] %}
+  <div align='center'><font size="+3"><b>Kanban</b></font><sub>[1]</sub><p>
+    <table style="width:30%">
+    {% for column, tasks in data[3]['columns'].items() | sort %}
+      <tr>
+        <th> {{ column.capitalize() }} </th>
+        <td style="text-align:center"> {{ tasks | length }} </td>
+      </tr>
+    {% endfor %}
+    </table>
+  </div>
+{% endif %}
+<p>
+{% if data[2]['sections']['anti'] %}
+  <div align='center'><font size="+3"><b>Anti-Patterns</b></font><sub>[1]</sub><p>
+    {% if 'anti' in data[3] %}
+      <table style="width:30%">
+        {% if not data[3]['anti']['total'] %}
+          <tr style="border: none;">
+            <td style="border: none; align='center'"><i> None Found</i></td>
+          </tr>
+        </table>
+        {% else %}
+          {% for pattern, tasks in data[3]['anti']['patterns'].items() | sort %}
+            <tr>
+              <th> {{ pattern }} </th>
+              <td style="border: none;">
+              {% for task in tasks | sort %}
+                {{ phtask(task['id']) }} <br>
+              {% endfor %}
+              </td>
+             </tr>
+          {% endfor %}
+        {% endif %}
+      </table>
+    {% endif %}
+    </div>
+{% endif %}
+<p>
+{% if data[2]['sections']['users'] %}
+  <div align='center'>
+    <font size="+3"><b>Users</b></font><sub>[1]</sub>
+  </div>
+  <br>
+  <div align='center'>
+    <table style="width:30%">
+      <caption><font size="+2"><b>Totals<b></font></caption>
+      <tr>
+        <th><b>Users<b></th>
+        <td>{{ data[3]['users']['group']['count'] }}</td>
+      </tr>
+      <tr>
+        <th><b>Assigned<b></th>
+        <td>{{ data[3]['users']['group']['assigned'] | length }}</td>
+      </tr>
+      <tr>
+        <th><b>Days 'Til Mold:<b></th>
+        <td>{{ data[2]['users']['moldy'] }}</td>
+      </tr>
+        <th><b>Moldy:<b></th>
+        <td>{{ data[3]['users']['group']['moldy'] | length }}</td>
+      </tr>
+    </table>
+  </div>
+  <p>
+  <div align='left'>
+    <font size="+2"><b>Individuals</b></font><br>
+  </div>
+  <p>
+  {% for user in data[2]['users']['map'] | sort %}
+    <div align='left'>
+      {% set profile_img_be = data[2]['users']['attributes']['show']['image']['backend'] %}
+      {% set profile_img = data[1][profile_img_be]['users'][user]['image']  %}
+      {% set userlink_be = data[2]['users']['attributes']['show']['uri']['backend'] %}
+      {% set userlink_uri = data[1][userlink_be]['users'][user]['uri']  %}
+      <br>
+      <img src="{{ profile_img }}" height="42" width="42">&emsp;
+      <font size="+1"><a href="{{ userlink_uri }}"> {{ user }}</a></font><br>
+        <table style="border-collapse: collapse; border: none;">
+          <caption style="text-align:left"><b>Totals<b></caption>
+          {% for t, v in data[3]['users']['individual'][user].items() | sort %}
+          <tr style="border: none;">
+            <th style="border: none;">{{ t.capitalize() }}</th>
+            <td style="border: none;">{{ v | length }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <p>
+          {% for be in data[0]['enabled_backends'] | sort %}
+            <table style="border-collapse: collapse; border: none;">
+              <caption style="text-align:left"><b>{{ be.capitalize() }}<b></caption>
+              <tr style="border: none;">
+                <th style="border: none;">Assigned</th>
+                <td style="border: none;">{{ data[1][be]['users'][user]['assigned'] | length }}</td>
+              </tr>
+              {% if data[1][be]['users'][user]['moldy']['all'] %}
+                <tr style="border: none;">
+                  <th style="border: none;">Moldy</th>
+                  <td style="border: none;">{{ data[1][be]['users'][user]['moldy']['all'] | length }}</td>
+                </tr>
+                <tr style="border: none;">
+                  <th style="border: none;">Moldiest</th>
+                </tr>
+                  {% for m in data[1][be]['users'][user]['moldy']['shown'] %}
+                    <tr style="border: none;">
+                      <th style="border: none;"></th>
+                      <td style="border: none;"><a href="{{ m[0] }}"> {{ m[1] }}</a></td>
+                    </tr>
+                  {% endfor %}
+              {% else %}
+                <tr style="border: none;">
+                  <td style="border: none;"><i> No moldy tasks.</i></td>
+                </tr>
+              {% endif %}
+            </table>
+            <p>
+    {% endfor %}
+    <hr>
+  {% endfor %}
+{% endif %}
+<p>
+{% if data[2]['sections']['tasks_breakdown'] %}
+  <div align='center'>
+    <font size="+3"><b>New Tasks Breakdown</b></font><sub>[2]</sub><br>
+    <font size="+2"><b>Totals</b></font><br>
+    {{ summary_table(data[3]['projects']['history']['summary_table']) }}
+  </div>
+{% endif %}
+<p>
+{% if data[2]['sections']['tasks'] %}
+  {% for be in data[0]['enabled_backends'] | sort %}
+    <div align='center'>
+      <font size="+2"><b>{{ be.capitalize() }}</b></font>
+    </div>
+    {% for project in data[2]['backends'][be]['projects'].keys() | sort %}
+      <div align='center'>
+        <font size="+1"><b>{{ project }}</b></font>
+      {{ summary_table(data[1][be]['projects'][project]['history']['summary_table']) }}
+      </div>
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+---
+<br>
+[1] Asana <i>all time</i> is only relevant for defined projects in config.
+<br>
+[2] This is newly created tasks within the specified duration only.  Durations are specified via the <i>histories</i> config setting.
+<p>
+<i>Runtime for {{ data[0]['name'] }} {{ data[0]['runtime'] }}s</i>
+{% endblock %}

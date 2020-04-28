@@ -1,0 +1,4 @@
+python3-yaml =< 3.12-1
+python3-jinja2 =< 2.8-1
+python3-phabricator =< 0.7.0-1
+python3-asana =< 0.10.0

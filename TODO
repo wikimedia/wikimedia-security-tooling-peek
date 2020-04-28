@@ -1,0 +1,28 @@
+* Enable section picking in template
+* Better value override for extended configs.  Should allow sub params
+* Charts in the email
+* Input from mailing lists
+* Clean up the template (esp html)
+* Tasks processed by project, esp for phab should include those modified
+  with the tag within duration and not only created.
+* Subtract watching tasks from open count?
+* Abstract anti-patterns out to work dynamically off
+  of backend status method anti_*
+** Possible Anti Additions:
+*** assigned items in backlog
+*** tasks with mutually exclusive tags
+* Use base base for backends
+* Reporting on most commonly associatd tags (-security)
+* Reporting on submitter and group
+* make options help more useful
+* Create a wikitech page
+* expand antipatterns to task link (info all there)
+* Attack yaml?  Would have to careful of leaking things
+  from sensitive projects and backends but the main motivation
+  is to facilitate longer term historical lookbacks. Maybe
+  this being a webapp is the better option.  IDK.  Aggregate
+  stats seem OK here.
+* ignore assigned tasks with epic tag as they should not
+  themselves contain actual "work"?  This could make task
+  assignment metrics more meaningful but the use of 'epic'
+  would need to be consistent.

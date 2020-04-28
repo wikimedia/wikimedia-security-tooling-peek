@@ -1,0 +1,6 @@
+[gerrit]
+host=gerrit.wikimedia.org
+port=29418
+project=wikimedia/security/tooling/peek.git
+track=1
+defaultrebase=0

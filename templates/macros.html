@@ -1,0 +1,41 @@
+{% macro projlink(project) %}
+    <a href="https://phabricator.wikimedia.org/tag/{{ project.replace('*', '_') }}"> {{ project }}</a>
+{% endmacro %}
+
+{% macro phtask(id) %}
+    <a href="https://phabricator.wikimedia.org/T{{ id }}"> T{{ id }}</a>
+{% endmacro %}
+
+{% macro phtask_full(task) %}
+<a href="https://phabricator.wikimedia.org/T{{ task['id'] }}"> T{{ task['id'] }}</a>
+{% if task['fields']['status']['name'] == "Open" %}
+  <font color="green"><b>{{ task['fields']['status']['name'] }}</b></font>
+  {% else %}
+    {{ task['fields']['status']['name'] }}
+  {% endif %}
+    <b>[{{ task['fields']['subtype'] }}]</b>
+    {{ task['fields']['name'] }}
+<br>
+{% endmacro %}
+
+{% macro summary_table(datadict) %}
+{% for group, rows in datadict | dictsort | reverse %}
+    <table style="width:80%">
+    <caption><b>{{ group.capitalize() }}<b></caption>
+    <tr>
+    {% for top in rows['header'] %}
+        <th style="text-align:center">{{ top.capitalize() }}</th>
+    {% endfor %}
+    </tr>
+    {% for duration, counts in rows['durations'] | dictsort %}
+        <tr>
+        <td>{{ duration }}</td>
+        {% for count in counts %}
+        <td style="text-align:center">{{ count }}</td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+    <p>
+{% endfor %}
+{% endmacro %}
