@@ -1,4 +1,3 @@
-* Enable section picking in template
 * Better value override for extended configs.  Should allow sub params
 * Charts in the email
 * Input from mailing lists
@@ -11,6 +10,7 @@
 ** Possible Anti Additions:
 *** assigned items in backlog
 *** tasks with mutually exclusive tags
+*** tasks assigned to members without team tag (security-team)
 * Use base base for backends
 * Reporting on most commonly associatd tags (-security)
 * Reporting on submitter and group
