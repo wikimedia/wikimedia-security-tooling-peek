@@ -48,7 +48,7 @@
             <tr>
               <th> {{ pattern }} </th>
               <td style="border: none;">
-              {% for task in tasks | sort %}
+              {% for task in tasks %}
                 {{ phtask(task['id']) }} <br>
               {% endfor %}
               </td>
