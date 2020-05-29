@@ -1,28 +1,35 @@
-* Better value override for extended configs.  Should allow sub params
-* Charts in the email
-* Input from mailing lists
-* Clean up the template (esp html)
-* Tasks processed by project, esp for phab should include those modified
+* Actions
+** T253901: Automate ticket removal from "Watching" column on the #Security-team Phabricator workboard after a certain timeframe
+
+* Anti Patterns
+** Abstract anti-patterns out to work dynamically off
+  of backend status method anti_**
+** tasks assigned to members without team tag (security-team)
+** assigned items in backlog
+** tasks with mutually exclusive tags
+
+* Features
+** Better value override for extended configs.  Should allow sub params to override instead
+   of copying entire stanzas.
+** Charts in the email
+** Clean up the template (esp html)
+** Tasks processed by project, esp for phab should include those modified
   with the tag within duration and not only created.
-* Subtract watching tasks from open count?
-* Abstract anti-patterns out to work dynamically off
-  of backend status method anti_*
-** Possible Anti Additions:
-*** assigned items in backlog
-*** tasks with mutually exclusive tags
-*** tasks assigned to members without team tag (security-team)
-* Use base base for backends
-* Reporting on most commonly associatd tags (-security)
-* Reporting on submitter and group
-* make options help more useful
-* Create a wikitech page
-* expand antipatterns to task link (info all there)
-* Attack yaml?  Would have to careful of leaking things
+** Use base class for backends
+** Reporting on most commonly associatd tags (-security)
+** Reporting on submitter and group
+** make options help more useful
+** expand antipatterns to task link (info all there)
+** Attack yaml?  Would have to careful of leaking things
   from sensitive projects and backends but the main motivation
   is to facilitate longer term historical lookbacks. Maybe
   this being a webapp is the better option.  IDK.  Aggregate
   stats seem OK here.
-* ignore assigned tasks with epic tag as they should not
+
+* Prospective
+** ignore assigned tasks with epic tag as they should not
   themselves contain actual "work"?  This could make task
   assignment metrics more meaningful but the use of 'epic'
   would need to be consistent.
+** Programmitic input from mailing lists about volume etc?
+** Subtract watching tasks from open count?
