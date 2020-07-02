@@ -155,11 +155,9 @@ class Status:
                          assigned.append(task)
          return assigned
 
-    def user_assigned(self, user_details, best_by_date):
+    def user_assigned(self, user_details):
         assigned = self.get_user_assigned_tasks(user_details['gid'])
-        moldy_threshold = int(time.time()) - best_by_date
-        moldy = self.task_mod_before_date(assigned, moldy_threshold)
-        return assigned, moldy
+        return assigned
 
     def task_mod_before_date(self, tasks, mtime):
         modded = []
@@ -288,3 +286,13 @@ class Status:
         function = columns[column]
         tasks = function(project, self.task_history[project]['tasks_dedup'])
         return tasks
+
+    def anti_moldy(self, assigned, antinfo, beinfo):
+        best_by_date = antinfo['age']
+        moldy_threshold = int(time.time()) - best_by_date
+        moldy = self.task_mod_before_date(assigned, moldy_threshold)
+        return moldy
+
+    def anti_assigned_wo_reporting_project(self, tasks, antinfo, beinfo):
+        """put in superclass"""
+        return []

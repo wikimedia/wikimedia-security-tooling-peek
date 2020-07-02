@@ -10,6 +10,7 @@ class Status:
 
         self.args = kwargs
         self.members = []
+        self.project_details = {}
         self.task_history = {}
         self.logger = None
 
@@ -74,11 +75,13 @@ class Status:
     def user_info(self, phid):
         return self.con.user.query(phids=[phid])[0]
 
-    def user_assigned(self, user_details, best_by_date):
+    def user_assigned(self, user_details):
         assigned = self.con.maniphest.search(queryKey='open',
+                                             attachments={
+                                                 "projects": True
+                                             },
                                          constraints={'assigned': [user_details['phid']]})
-        aged = self.task_mod_after_date(assigned['data'], best_by_date)
-        return assigned['data'], aged
+        return assigned['data']
 
     def task_mod_after_date(self, tasks, age):
         modded = []
@@ -163,3 +166,36 @@ class Status:
                                                     ],
                                                    },
                                                   )
+    def anti_punassigned(self, antinfo, pinfo):
+        """ return a list of tasks that are in progress but unassigned
+        :param tasks_dict: list of standard phab task dicts
+        """
+        tasks_dict = pinfo['columns']['progress']
+
+        punassigned = []
+        for task in tasks_dict:
+            if task['fields']['ownerPHID'] is None:
+                punassigned.append(task)
+        return punassigned
+
+    def anti_watching_dormant(self, antinfo, pinfo):
+        tasks_dict = pinfo['columns']['watching']
+        best_by_date = antinfo['age']
+        return self.task_mod_after_date(tasks_dict, best_by_date)
+
+    def anti_moldy(self, tasks, antinfo, beinfo):
+        best_by_date = antinfo['age']
+        return self.task_mod_after_date(tasks, best_by_date)
+
+    def anti_assigned_wo_reporting_project(self, tasks, antinfo, beinfo):
+        if not self.project_details:
+            self.project_details = self.con.project.query(names=list(beinfo['projects'].keys()))
+        reported_phids = set(self.project_details['data'].keys())
+
+        out = []
+        for task in tasks:
+            task_projects = task['attachments']['projects']['projectPHIDs']
+            matched = set(task_projects).intersection(reported_phids)
+            if not matched:
+                out.append(task)
+        return out
