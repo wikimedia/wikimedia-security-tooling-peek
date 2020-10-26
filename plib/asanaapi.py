@@ -133,8 +133,18 @@ class Status:
             space_users = self.con.users.get_users_for_workspace(self.space['gid'])
             self.space_users = list(space_users)
 
-        gid = [u['gid'] for u in self.space_users if u['name'] == username][0]
-        return self.get_user_info(gid)
+        gid = [u['gid'] for u in self.space_users if u['name'] == username]
+        if len(gid):
+            return self.get_user_info(gid[0])
+        else:
+            raise Exception(''.join([
+                            'Invalid user for workspace: "',
+                            self.get_workspace()['name'],
+                            '" - "',
+                            username,
+                            ' (',
+                            realname,
+                            ')"']))
 
     def get_user_info(self, id):
         return self.con.users.find_by_id(id)
