@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+
 def send_email(sender,
                receiver,
                subject,
@@ -28,6 +29,7 @@ def send_email(sender,
     finally:
         server.quit()
 
+
 def safeget(dct, keys):
     """ get sub items from a nested dict
     :param dct: nested dict
@@ -40,9 +42,10 @@ def safeget(dct, keys):
             return None
     return dct
 
-def dedupe_list_of_dicts(l):
+
+def dedupe_list_of_dicts(dicts):
     """ unique a list of dicts
-    :param l: list
+    :param dicts: list
     :return: list
     """
-    return [i for n, i in enumerate(l) if i not in l[n + 1:]]
+    return [i for n, i in enumerate(dicts) if i not in dicts[n + 1:]]

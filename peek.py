@@ -3,7 +3,6 @@ import copy
 import datetime
 import logging
 import optparse
-import os
 import sys
 import time
 import yaml
@@ -51,11 +50,10 @@ def main():
 
     options, remainder = parser.parse_args()
 
-
     logging.basicConfig(
         level=logging.DEBUG if options.verbose else logging.INFO,
         format="%(asctime)s:%(levelname)s:%(message)s"
-        )
+    )
     logging.debug(options)
 
     def loadconfig(configs):
@@ -68,7 +66,7 @@ def main():
                     v = yaml.load(ymlfile)
                     logging.debug(v)
                     out.update(v)
-            except Exception as e:
+            except Exception:
                 logging.critical('failed to read config file {}'.format(c))
         return out
 
@@ -136,7 +134,7 @@ def main():
                 projects[project]['history'][duration]['tasks'] = tasks
                 projects[project]['history'][duration]['stats'] = stats
 
-                if not duration in total['projects']['history']:
+                if duration not in total['projects']['history']:
                     total['projects']['history'][duration] = {}
                     total['projects']['history'][duration]['stats'] = copy.deepcopy(stats)
 
@@ -213,7 +211,7 @@ def main():
             users[u] = {}
             users[u]['details'] = wobj.get_member_info(u, be_matches[be])
 
-        logging.debug('{} member details'.format(be, users))
+        logging.debug('{} member details'.format(be))
 
         for u, uinfo in users.items():
 
@@ -237,14 +235,16 @@ def main():
 
             if 'stats' not in total['users']['individual'][u]:
                 total['users']['individual'][u]['stats'] = {}
+
             if 'assigned' not in total['users']['individual'][u]['stats']:
                 total['users']['individual'][u]['stats']['assigned'] = []
+
             total['users']['individual'][u]['stats']['assigned'] += util.dedupe_list_of_dicts(assigned)
 
             if 'anti' in cfg['users']:
 
                 if 'antipatterns' not in total['users']['individual'][u]['stats']:
-                    total['users']['individual'] [u]['stats']['antipatterns'] = []
+                    total['users']['individual'][u]['stats']['antipatterns'] = []
 
                 if 'antipatterns' not in total['users']['group']:
                     total['users']['group']['antipatterns'] = []
@@ -259,7 +259,7 @@ def main():
                     if antidetails['name'] not in users[u]['antipatterns']:
                         users[u]['antipatterns'][antidetails['name']] = {}
                     users[u]['antipatterns'][antidetails['name']]['all'] = anti_result
-                    total['users']['individual'] [u]['stats']['antipatterns'] += anti_result
+                    total['users']['individual'][u]['stats']['antipatterns'] += anti_result
                     total['users']['group']['antipatterns'] += anti_result
                     logging.info('{} {} assigned {} {} {}'.format(u, be, len(assigned), antidetails['name'], len(anti_result)))
 
@@ -267,7 +267,6 @@ def main():
                     m_shown = users[u]['antipatterns'][antidetails['name']]['all'][:antidetails['show']]
                     for task in m_shown:
                         users[u]['antipatterns'][antidetails['name']]['shown'].append(wobj.generate_task_link(task))
-
 
             time.sleep(beinfo.get('query_delay', .5))
 
@@ -283,7 +282,7 @@ def main():
     meta['runtime'] = int(time.time() - meta['starttime'])
     meta['name'] = getname()
 
-    data=[meta, bes, cfg, total]
+    data = [meta, bes, cfg, total]
     template.globals['now'] = int(time.time())
     output = template.render(data=data)
 
@@ -294,9 +293,13 @@ def main():
         now = datetime.datetime.now()
         subject = "{} {}".format(cfg['job'], now.strftime('%Y-%m-%d'))
         logging.info("{} sending email '{}'".format(meta['name'], subject))
-        util.send_email(cfg['email']['from'],
-                         cfg['email']['to'],
-                         subject,
-                         output,
-                         cfg['email']['server'])
+        util.send_email(
+            cfg['email']['from'],
+            cfg['email']['to'],
+            subject,
+            output,
+            cfg['email']['server']
+        )
+
+
 main()

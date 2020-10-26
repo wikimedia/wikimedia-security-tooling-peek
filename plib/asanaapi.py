@@ -2,6 +2,7 @@ import asana
 import time
 import datetime as dt
 
+
 class Status:
     """wrapper for asana api"""
     def __init__(self, **kwargs):
@@ -80,7 +81,7 @@ class Status:
     def generate_task_link(self, task):
         try:
             return self.task_fmt.format(task['projects'][0]['gid'], task['gid']), task['name']
-        except:
+        except Exception:
             self.logging('failed to generate link for {}'.format(task))
             raise
 
@@ -96,7 +97,7 @@ class Status:
 
         workspaces = self.con.workspaces.find_all()
 
-        space = None
+        self.space = None
         for i, val in enumerate(workspaces):
             if val['name'] == self.args['workspace']:
                 self.space = val
@@ -147,13 +148,13 @@ class Status:
         #                                                "opt_fields":self.task_fields})
         # return [t for t in list(assigned_generator) if not t['completed']]
 
-         assigned = []
-         for project, details in self.task_history.items():
-             for task in details['tasks_dedup']:
-                 if task['assignee'] and task['assignee']['gid'] == gid:
-                     if not task['completed']:
-                         assigned.append(task)
-         return assigned
+        assigned = []
+        for project, details in self.task_history.items():
+            for task in details['tasks_dedup']:
+                if task['assignee'] and task['assignee']['gid'] == gid:
+                    if not task['completed']:
+                        assigned.append(task)
+        return assigned
 
     def user_assigned(self, user_details):
         assigned = self.get_user_assigned_tasks(user_details['gid'])
@@ -164,7 +165,7 @@ class Status:
         for task in tasks:
             if self.date_to_epoch(task['modified_at']) < mtime:
                 modded.append(task)
-        modded_sorted = sorted(modded, key = lambda i: i['modified_at'])
+        modded_sorted = sorted(modded, key=lambda i: i['modified_at'])
         return modded_sorted
 
     def task_mod_after_date(self, tasks, mtime):
@@ -172,7 +173,7 @@ class Status:
         for task in tasks:
             if self.date_to_epoch(task['modified_at']) > mtime:
                 modded.append(task)
-        modded_sorted = sorted(modded, key = lambda i: i['modified_at'])
+        modded_sorted = sorted(modded, key=lambda i: i['modified_at'])
         return modded_sorted
 
     def task_created_after_date(self, tasks, ctime):
@@ -180,12 +181,13 @@ class Status:
         for task in tasks:
             if self.date_to_epoch(task['created_at']) > ctime:
                 created_after.append(task)
-        created_sorted = sorted(created_after, key = lambda i: i['created_at'])
+        created_sorted = sorted(created_after, key=lambda i: i['created_at'])
         return created_sorted
 
     def get_project_tasks(self, gid):
-        return self.con.tasks.find_all({'project': gid,
-                                         "opt_fields":self.task_fields})
+        return self.con.tasks.find_all(
+            {'project': gid, 'opt_fields': self.task_fields}
+        )
 
     def get_tasks_created_since(self, project, days):
         """ get tasks from last n days with summary stats
@@ -233,9 +235,7 @@ class Status:
         :return: list of summary dicts by summary_field
         """
         summary = {}
-        summary_fields = {'status':
-                              'completed',
-                         }
+        summary_fields = {'status': 'completed'}
 
         # return count(s) of unique summary_field items for all tasks
         for field, key in summary_fields.items():

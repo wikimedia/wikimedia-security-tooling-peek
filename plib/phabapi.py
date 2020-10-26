@@ -18,9 +18,11 @@ class Status:
         self.project_fmt = "https://phabricator.wikimedia.org/tag/{}"
 
         if kwargs['host']:
-            self.con = Phabricator(token=kwargs['token'],
-                                    host=kwargs['host'],
-                                    timeout=kwargs['timeout'])
+            self.con = Phabricator(
+                token=kwargs['token'],
+                host=kwargs['host'],
+                timeout=kwargs['timeout']
+            )
         else:
             self.con = None
 
@@ -39,13 +41,15 @@ class Status:
     def generate_task_link(self, task):
         return self.task_fmt.format(task['id']), task['fields']['name']
 
-    def page_query(self,
-                    function,
-                    queryKey='open',
-                    order=None,
-                    limit=100,
-                    constraints={},
-                    query_delay=.5):
+    def page_query(
+        self,
+        function,
+        queryKey='open',
+        order=None,
+        limit=100,
+        constraints={},
+        query_delay=.5
+    ):
         """ Query paged results until
         :param queryKey: string for main query modifyer
         :param order: string or None for result ordering
@@ -76,11 +80,11 @@ class Status:
         return self.con.user.query(phids=[phid])[0]
 
     def user_assigned(self, user_details):
-        assigned = self.con.maniphest.search(queryKey='open',
-                                             attachments={
-                                                 "projects": True
-                                             },
-                                         constraints={'assigned': [user_details['phid']]})
+        assigned = self.con.maniphest.search(
+            queryKey='open',
+            attachments={"projects": True},
+            constraints={'assigned': [user_details['phid']]}
+        )
         return assigned['data']
 
     def task_mod_after_date(self, tasks, age):
@@ -88,7 +92,7 @@ class Status:
         for task in tasks:
             if task['fields']['dateModified'] < time.time() - age:
                 modded.append(task)
-        modded_sorted = sorted(modded, key = lambda i: i['fields']['dateModified'])
+        modded_sorted = sorted(modded, key=lambda i: i['fields']['dateModified'])
         return modded_sorted
 
     def task_created_after_date(self, tasks, age):
@@ -96,7 +100,7 @@ class Status:
         for task in tasks:
             if task['fields']['dateCreated'] > age:
                 created_after.append(task)
-        created_after_sorted = sorted(created_after, key = lambda i: i['fields']['dateCreated'])
+        created_after_sorted = sorted(created_after, key=lambda i: i['fields']['dateCreated'])
         return created_after_sorted
 
     def get_tasks_created_since(self, project, days):
@@ -111,12 +115,13 @@ class Status:
             cached_tasks = self.task_history[project]['tasks']
             return self.task_created_after_date(cached_tasks, start_date)
 
-        tasks = self.page_query(function=self.con.maniphest.search,
-                   queryKey='all',
-                   order='closed',
-                   constraints={'projects': [project],
-                                'createdStart': start_date },
-                   query_delay=1)
+        tasks = self.page_query(
+            function=self.con.maniphest.search,
+            queryKey='all',
+            order='closed',
+            constraints={'projects': [project], 'createdStart': start_date},
+            query_delay=1
+        )
 
         if project not in self.task_history:
             self.task_history[project] = {}
@@ -130,27 +135,25 @@ class Status:
         :return: list of summary dicts by summary_field
         """
         summary = {}
-        summary_fields = {'priority':
-                              ('fields', 'priority', 'name'),
-                          'status':
-                              ('fields', 'status', 'value'),
-                          'issue type':
-                              ('fields', 'subtype'),
-                         }
+        summary_fields = {
+            'priority': ('fields', 'priority', 'name'),
+            'status': ('fields', 'status', 'value'),
+            'issue type': ('fields', 'subtype'),
+        }
 
         # return count(s) of unique summary_field items for all tasks
         for field, key in summary_fields.items():
 
-             if not field in enabled_fields:
-                 continue
+            if field not in enabled_fields:
+                continue
 
-             extracted_fields = []
-             for task in tasks:
-                 extracted_fields.append(util.safeget(task, key))
-             if any(extracted_fields):
-                 summary[field] = dict(Counter(extracted_fields))
-             else:
-                 summary[field] = {}
+            extracted_fields = []
+            for task in tasks:
+                extracted_fields.append(util.safeget(task, key))
+            if any(extracted_fields):
+                summary[field] = dict(Counter(extracted_fields))
+            else:
+                summary[field] = {}
         return summary
 
     def column_tasks(self, column, project):
@@ -159,13 +162,11 @@ class Status:
         :param project: str
         :return: list
         """
-        return self.page_query(function=self.con.maniphest.search,
-                                                   constraints={
-                                                    'columnPHIDs': [
-                                                     column,
-                                                    ],
-                                                   },
-                                                  )
+        return self.page_query(
+            function=self.con.maniphest.search,
+            constraints={'columnPHIDs': [column]}
+        )
+
     def anti_punassigned(self, antinfo, pinfo):
         """ return a list of tasks that are in progress but unassigned
         :param tasks_dict: list of standard phab task dicts

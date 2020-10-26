@@ -1,5 +1,6 @@
 import copy
 
+
 def tasks_summary_header(tasks_summary, duration_header='days'):
     """create dicts for sane table building in html
 
@@ -22,6 +23,7 @@ def tasks_summary_header(tasks_summary, duration_header='days'):
             else:
                 headers[title] = sorted(list(set(headers[title])))
     return headers
+
 
 def tasks_summary_table(headers, tasks_summary):
     """create dicts for sane table building in html
