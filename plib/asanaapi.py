@@ -134,8 +134,7 @@ class Status:
             self.space_users = list(space_users)
 
         gid = [u['gid'] for u in self.space_users if u['name'] == username][0]
-        details = self.get_user_info(gid)
-        return details
+        return self.get_user_info(gid)
 
     def get_user_info(self, id):
         return self.con.users.find_by_id(id)
@@ -157,32 +156,31 @@ class Status:
         return assigned
 
     def user_assigned(self, user_details):
-        assigned = self.get_user_assigned_tasks(user_details['gid'])
-        return assigned
+        return self.get_user_assigned_tasks(user_details['gid'])
 
     def task_mod_before_date(self, tasks, mtime):
         modded = []
         for task in tasks:
             if self.date_to_epoch(task['modified_at']) < mtime:
                 modded.append(task)
-        modded_sorted = sorted(modded, key=lambda i: i['modified_at'])
-        return modded_sorted
+
+        return sorted(modded, key=lambda i: i['modified_at'])
 
     def task_mod_after_date(self, tasks, mtime):
         modded = []
         for task in tasks:
             if self.date_to_epoch(task['modified_at']) > mtime:
                 modded.append(task)
-        modded_sorted = sorted(modded, key=lambda i: i['modified_at'])
-        return modded_sorted
+
+        return sorted(modded, key=lambda i: i['modified_at'])
 
     def task_created_after_date(self, tasks, ctime):
         created_after = []
         for task in tasks:
             if self.date_to_epoch(task['created_at']) > ctime:
                 created_after.append(task)
-        created_sorted = sorted(created_after, key=lambda i: i['created_at'])
-        return created_sorted
+
+        return sorted(created_after, key=lambda i: i['created_at'])
 
     def get_project_tasks(self, gid):
         return self.con.tasks.find_all(
@@ -284,14 +282,12 @@ class Status:
             return []
 
         function = columns[column]
-        tasks = function(project, self.task_history[project]['tasks_dedup'])
-        return tasks
+        return function(project, self.task_history[project]['tasks_dedup'])
 
     def anti_moldy(self, assigned, antinfo, beinfo):
         best_by_date = antinfo['age']
         moldy_threshold = int(time.time()) - best_by_date
-        moldy = self.task_mod_before_date(assigned, moldy_threshold)
-        return moldy
+        return self.task_mod_before_date(assigned, moldy_threshold)
 
     def anti_assigned_wo_reporting_project(self, tasks, antinfo, beinfo):
         """put in superclass"""

@@ -92,16 +92,16 @@ class Status:
         for task in tasks:
             if task['fields']['dateModified'] < time.time() - age:
                 modded.append(task)
-        modded_sorted = sorted(modded, key=lambda i: i['fields']['dateModified'])
-        return modded_sorted
+
+        return sorted(modded, key=lambda i: i['fields']['dateModified'])
 
     def task_created_after_date(self, tasks, age):
         created_after = []
         for task in tasks:
             if task['fields']['dateCreated'] > age:
                 created_after.append(task)
-        created_after_sorted = sorted(created_after, key=lambda i: i['fields']['dateCreated'])
-        return created_after_sorted
+
+        return sorted(created_after, key=lambda i: i['fields']['dateCreated'])
 
     def get_tasks_created_since(self, project, days):
         """ get tasks from last n days with summary stats
