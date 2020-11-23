@@ -45,6 +45,7 @@ users:
         backend: phab
         key: uri
 
+  # Users should be added here when they start, and removed when they leave..
   map:
     'Bob User':
       asana: 'Bob P. User'
